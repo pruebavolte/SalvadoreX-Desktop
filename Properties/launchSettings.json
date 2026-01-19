@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SalvadoreXDesktop": {
+      "commandName": "Project",
+      "workingDirectory": "$(ProjectDir)"
+    }
+  }
+}
