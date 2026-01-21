@@ -6,26 +6,86 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
-    <ApplicationIcon>Resources\icon.ico</ApplicationIcon>
-    <AssemblyName>SalvadoreXPOS</AssemblyName>
+    <AssemblyName>SalvadoreXDesktop</AssemblyName>
     <RootNamespace>SalvadoreXDesktop</RootNamespace>
     <Version>1.0.0</Version>
     <Company>SalvadoreX</Company>
     <Product>SalvadoreX POS Desktop</Product>
     <Description>Sistema de Punto de Venta con sincronizacion en la nube</Description>
+    <StartupObject>SalvadoreXDesktop.Program</StartupObject>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.0" />
     <PackageReference Include="Dapper" Version="2.1.24" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Supabase" Version="0.16.2" />
   </ItemGroup>
 
   <ItemGroup>
     <None Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Forms\MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Forms\POSControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="Forms\POSControl.Designer.cs">
+      <DependentUpon>POSControl.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Forms\InventoryControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="Forms\InventoryControl.Designer.cs">
+      <DependentUpon>InventoryControl.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Forms\CustomersControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="Forms\CustomersControl.Designer.cs">
+      <DependentUpon>CustomersControl.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Forms\SalesHistoryControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="Forms\SalesHistoryControl.Designer.cs">
+      <DependentUpon>SalesHistoryControl.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Forms\SettingsControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="Forms\SettingsControl.Designer.cs">
+      <DependentUpon>SettingsControl.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Forms\MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Forms\POSControl.resx">
+      <DependentUpon>POSControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Forms\InventoryControl.resx">
+      <DependentUpon>InventoryControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Forms\CustomersControl.resx">
+      <DependentUpon>CustomersControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Forms\SalesHistoryControl.resx">
+      <DependentUpon>SalesHistoryControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Forms\SettingsControl.resx">
+      <DependentUpon>SettingsControl.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

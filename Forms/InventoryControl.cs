@@ -207,7 +207,6 @@ namespace SalvadoreXDesktop.Forms
             this.Font = new Font("Segoe UI", 10F);
             
             var y = 20;
-            var labelWidth = 120;
             var inputX = 130;
             var inputWidth = 330;
             var rowHeight = 40;
