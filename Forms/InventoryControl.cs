@@ -3,18 +3,10 @@ using SalvadoreXDesktop.Models;
 
 namespace SalvadoreXDesktop.Forms
 {
-    public class InventoryControl : UserControl
+    public partial class InventoryControl : UserControl
     {
         private readonly ProductRepository _productRepo;
         private readonly CategoryRepository _categoryRepo;
-        
-        private DataGridView gridProducts = null!;
-        private TextBox txtSearch = null!;
-        private Button btnAdd = null!;
-        private Button btnEdit = null!;
-        private Button btnDelete = null!;
-        private Button btnRefresh = null!;
-        private ComboBox cmbCategory = null!;
         
         private List<Product> _products = new();
         private List<Category> _categories = new();
@@ -25,125 +17,16 @@ namespace SalvadoreXDesktop.Forms
             _categoryRepo = new CategoryRepository();
             
             InitializeComponent();
-            LoadData();
         }
         
-        private void InitializeComponent()
+        private void InventoryControl_Load(object sender, EventArgs e)
         {
-            this.BackColor = Color.White;
-            this.Padding = new Padding(20);
-            
-            // Panel superior - Controles
-            var panelTop = new Panel
-            {
-                Dock = DockStyle.Top,
-                Height = 60,
-                Padding = new Padding(0, 0, 0, 10)
-            };
-            
-            var lblTitle = new Label
-            {
-                Text = "Inventario de Productos",
-                Font = new Font("Segoe UI", 18F, FontStyle.Bold),
-                ForeColor = Color.FromArgb(30, 41, 59),
-                Location = new Point(0, 5),
-                AutoSize = true
-            };
-            
-            txtSearch = new TextBox
-            {
-                Location = new Point(300, 10),
-                Size = new Size(200, 30),
-                Font = new Font("Segoe UI", 11F),
-                PlaceholderText = "Buscar producto..."
-            };
-            txtSearch.TextChanged += TxtSearch_TextChanged;
-            
-            cmbCategory = new ComboBox
-            {
-                Location = new Point(510, 10),
-                Size = new Size(150, 30),
-                Font = new Font("Segoe UI", 11F),
-                DropDownStyle = ComboBoxStyle.DropDownList
-            };
-            cmbCategory.SelectedIndexChanged += CmbCategory_SelectedIndexChanged;
-            
-            btnAdd = new Button
-            {
-                Text = "+ Nuevo",
-                Location = new Point(680, 8),
-                Size = new Size(100, 35),
-                BackColor = Color.FromArgb(34, 197, 94),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 10F, FontStyle.Bold),
-                Cursor = Cursors.Hand
-            };
-            btnAdd.FlatAppearance.BorderSize = 0;
-            btnAdd.Click += BtnAdd_Click;
-            
-            btnEdit = new Button
-            {
-                Text = "Editar",
-                Location = new Point(785, 8),
-                Size = new Size(80, 35),
-                BackColor = Color.FromArgb(59, 130, 246),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 10F),
-                Cursor = Cursors.Hand
-            };
-            btnEdit.FlatAppearance.BorderSize = 0;
-            btnEdit.Click += BtnEdit_Click;
-            
-            btnDelete = new Button
-            {
-                Text = "Eliminar",
-                Location = new Point(870, 8),
-                Size = new Size(80, 35),
-                BackColor = Color.FromArgb(239, 68, 68),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 10F),
-                Cursor = Cursors.Hand
-            };
-            btnDelete.FlatAppearance.BorderSize = 0;
-            btnDelete.Click += BtnDelete_Click;
-            
-            panelTop.Controls.AddRange(new Control[] { lblTitle, txtSearch, cmbCategory, btnAdd, btnEdit, btnDelete });
-            
-            // Grid de productos
-            gridProducts = new DataGridView
-            {
-                Dock = DockStyle.Fill,
-                BackgroundColor = Color.White,
-                BorderStyle = BorderStyle.None,
-                AutoGenerateColumns = false,
-                AllowUserToAddRows = false,
-                AllowUserToDeleteRows = false,
-                ReadOnly = true,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                RowHeadersVisible = false,
-                Font = new Font("Segoe UI", 10F),
-                ColumnHeadersHeight = 40,
-                RowTemplate = { Height = 35 }
-            };
-            
-            gridProducts.Columns.AddRange(new DataGridViewColumn[]
-            {
-                new DataGridViewTextBoxColumn { Name = "Name", HeaderText = "Producto", DataPropertyName = "Name", Width = 200 },
-                new DataGridViewTextBoxColumn { Name = "Sku", HeaderText = "SKU", DataPropertyName = "Sku", Width = 100 },
-                new DataGridViewTextBoxColumn { Name = "Barcode", HeaderText = "Codigo", DataPropertyName = "Barcode", Width = 120 },
-                new DataGridViewTextBoxColumn { Name = "Price", HeaderText = "Precio", DataPropertyName = "Price", Width = 100, DefaultCellStyle = new DataGridViewCellStyle { Format = "C2" } },
-                new DataGridViewTextBoxColumn { Name = "Cost", HeaderText = "Costo", DataPropertyName = "Cost", Width = 100, DefaultCellStyle = new DataGridViewCellStyle { Format = "C2" } },
-                new DataGridViewTextBoxColumn { Name = "Stock", HeaderText = "Stock", DataPropertyName = "Stock", Width = 80 },
-                new DataGridViewTextBoxColumn { Name = "MinStock", HeaderText = "Min", DataPropertyName = "MinStock", Width = 60 },
-                new DataGridViewCheckBoxColumn { Name = "Active", HeaderText = "Activo", DataPropertyName = "Active", Width = 60 }
-            });
-            
-            gridProducts.DoubleClick += (s, e) => BtnEdit_Click(s, e);
-            
-            // Estilos del grid
+            LoadData();
+            ApplyGridStyles();
+        }
+        
+        private void ApplyGridStyles()
+        {
             gridProducts.ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
             {
                 BackColor = Color.FromArgb(30, 41, 59),
@@ -162,9 +45,6 @@ namespace SalvadoreXDesktop.Forms
             {
                 BackColor = Color.FromArgb(248, 250, 252)
             };
-            
-            this.Controls.Add(gridProducts);
-            this.Controls.Add(panelTop);
         }
         
         private void LoadData()
@@ -209,17 +89,17 @@ namespace SalvadoreXDesktop.Forms
             gridProducts.DataSource = filtered.ToList();
         }
         
-        private void TxtSearch_TextChanged(object? sender, EventArgs e)
+        private void TxtSearch_TextChanged(object sender, EventArgs e)
         {
             RefreshGrid();
         }
         
-        private void CmbCategory_SelectedIndexChanged(object? sender, EventArgs e)
+        private void CmbCategory_SelectedIndexChanged(object sender, EventArgs e)
         {
             RefreshGrid();
         }
         
-        private void BtnAdd_Click(object? sender, EventArgs e)
+        private void BtnAdd_Click(object sender, EventArgs e)
         {
             using var form = new ProductFormDialog(_categories);
             if (form.ShowDialog() == DialogResult.OK && form.Product != null)
@@ -231,7 +111,7 @@ namespace SalvadoreXDesktop.Forms
             }
         }
         
-        private void BtnEdit_Click(object? sender, EventArgs e)
+        private void BtnEdit_Click(object sender, EventArgs e)
         {
             if (gridProducts.SelectedRows.Count == 0)
             {
@@ -252,7 +132,7 @@ namespace SalvadoreXDesktop.Forms
             }
         }
         
-        private void BtnDelete_Click(object? sender, EventArgs e)
+        private void BtnDelete_Click(object sender, EventArgs e)
         {
             if (gridProducts.SelectedRows.Count == 0)
             {
@@ -277,6 +157,11 @@ namespace SalvadoreXDesktop.Forms
                 RefreshGrid();
                 MessageBox.Show("Producto eliminado", "Exito", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
+        }
+        
+        private void GridProducts_DoubleClick(object sender, EventArgs e)
+        {
+            BtnEdit_Click(sender, e);
         }
     }
     

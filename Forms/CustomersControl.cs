@@ -3,15 +3,9 @@ using SalvadoreXDesktop.Models;
 
 namespace SalvadoreXDesktop.Forms
 {
-    public class CustomersControl : UserControl
+    public partial class CustomersControl : UserControl
     {
         private readonly CustomerRepository _customerRepo;
-        
-        private DataGridView gridCustomers = null!;
-        private TextBox txtSearch = null!;
-        private Button btnAdd = null!;
-        private Button btnEdit = null!;
-        private Button btnDelete = null!;
         
         private List<Customer> _customers = new();
         
@@ -19,118 +13,30 @@ namespace SalvadoreXDesktop.Forms
         {
             _customerRepo = new CustomerRepository();
             InitializeComponent();
+        }
+        
+        private void CustomersControl_Load(object sender, EventArgs e)
+        {
             LoadData();
+            ApplyGridStyles();
         }
         
-        private void InitializeComponent()
+        private void ApplyGridStyles()
         {
-            this.BackColor = Color.White;
-            this.Padding = new Padding(20);
-            
-            // Panel superior
-            var panelTop = new Panel
-            {
-                Dock = DockStyle.Top,
-                Height = 60
-            };
-            
-            var lblTitle = new Label
-            {
-                Text = "Clientes",
-                Font = new Font("Segoe UI", 18F, FontStyle.Bold),
-                ForeColor = Color.FromArgb(30, 41, 59),
-                Location = new Point(0, 5),
-                AutoSize = true
-            };
-            
-            txtSearch = new TextBox
-            {
-                Location = new Point(200, 10),
-                Size = new Size(250, 30),
-                Font = new Font("Segoe UI", 11F),
-                PlaceholderText = "Buscar cliente..."
-            };
-            txtSearch.TextChanged += (s, e) => RefreshGrid();
-            
-            btnAdd = CreateButton("+ Nuevo", Color.FromArgb(34, 197, 94), 470);
-            btnAdd.Click += BtnAdd_Click;
-            
-            btnEdit = CreateButton("Editar", Color.FromArgb(59, 130, 246), 575);
-            btnEdit.Click += BtnEdit_Click;
-            
-            btnDelete = CreateButton("Eliminar", Color.FromArgb(239, 68, 68), 660);
-            btnDelete.Click += BtnDelete_Click;
-            
-            panelTop.Controls.AddRange(new Control[] { lblTitle, txtSearch, btnAdd, btnEdit, btnDelete });
-            
-            // Grid
-            gridCustomers = new DataGridView
-            {
-                Dock = DockStyle.Fill,
-                BackgroundColor = Color.White,
-                BorderStyle = BorderStyle.None,
-                AutoGenerateColumns = false,
-                AllowUserToAddRows = false,
-                AllowUserToDeleteRows = false,
-                ReadOnly = true,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                RowHeadersVisible = false,
-                Font = new Font("Segoe UI", 10F),
-                ColumnHeadersHeight = 40,
-                RowTemplate = { Height = 35 }
-            };
-            
-            gridCustomers.Columns.AddRange(new DataGridViewColumn[]
-            {
-                new DataGridViewTextBoxColumn { Name = "Name", HeaderText = "Nombre", DataPropertyName = "Name", Width = 200 },
-                new DataGridViewTextBoxColumn { Name = "Email", HeaderText = "Email", DataPropertyName = "Email", Width = 200 },
-                new DataGridViewTextBoxColumn { Name = "Phone", HeaderText = "Telefono", DataPropertyName = "Phone", Width = 120 },
-                new DataGridViewTextBoxColumn { Name = "Rfc", HeaderText = "RFC", DataPropertyName = "Rfc", Width = 130 },
-                new DataGridViewTextBoxColumn { Name = "CreditLimit", HeaderText = "Limite Credito", DataPropertyName = "CreditLimit", Width = 120, DefaultCellStyle = new DataGridViewCellStyle { Format = "C2" } },
-                new DataGridViewTextBoxColumn { Name = "CurrentCredit", HeaderText = "Credito Usado", DataPropertyName = "CurrentCredit", Width = 120, DefaultCellStyle = new DataGridViewCellStyle { Format = "C2" } },
-                new DataGridViewTextBoxColumn { Name = "LoyaltyPoints", HeaderText = "Puntos", DataPropertyName = "LoyaltyPoints", Width = 80 }
-            });
-            
-            gridCustomers.DoubleClick += (s, e) => BtnEdit_Click(s, e);
-            ApplyGridStyles(gridCustomers);
-            
-            this.Controls.Add(gridCustomers);
-            this.Controls.Add(panelTop);
-        }
-        
-        private Button CreateButton(string text, Color color, int x)
-        {
-            var btn = new Button
-            {
-                Text = text,
-                Location = new Point(x, 8),
-                Size = new Size(100, 35),
-                BackColor = color,
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 10F),
-                Cursor = Cursors.Hand
-            };
-            btn.FlatAppearance.BorderSize = 0;
-            return btn;
-        }
-        
-        private void ApplyGridStyles(DataGridView grid)
-        {
-            grid.ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
+            gridCustomers.ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
             {
                 BackColor = Color.FromArgb(30, 41, 59),
                 ForeColor = Color.White,
                 Font = new Font("Segoe UI", 10F, FontStyle.Bold)
             };
             
-            grid.DefaultCellStyle = new DataGridViewCellStyle
+            gridCustomers.DefaultCellStyle = new DataGridViewCellStyle
             {
                 SelectionBackColor = Color.FromArgb(219, 234, 254),
                 SelectionForeColor = Color.Black
             };
             
-            grid.AlternatingRowsDefaultCellStyle = new DataGridViewCellStyle
+            gridCustomers.AlternatingRowsDefaultCellStyle = new DataGridViewCellStyle
             {
                 BackColor = Color.FromArgb(248, 250, 252)
             };
@@ -161,7 +67,12 @@ namespace SalvadoreXDesktop.Forms
             gridCustomers.DataSource = filtered.ToList();
         }
         
-        private void BtnAdd_Click(object? sender, EventArgs e)
+        private void TxtSearch_TextChanged(object sender, EventArgs e)
+        {
+            RefreshGrid();
+        }
+        
+        private void BtnAdd_Click(object sender, EventArgs e)
         {
             using var form = new CustomerFormDialog();
             if (form.ShowDialog() == DialogResult.OK && form.Customer != null)
@@ -173,7 +84,7 @@ namespace SalvadoreXDesktop.Forms
             }
         }
         
-        private void BtnEdit_Click(object? sender, EventArgs e)
+        private void BtnEdit_Click(object sender, EventArgs e)
         {
             if (gridCustomers.SelectedRows.Count == 0)
             {
@@ -194,7 +105,7 @@ namespace SalvadoreXDesktop.Forms
             }
         }
         
-        private void BtnDelete_Click(object? sender, EventArgs e)
+        private void BtnDelete_Click(object sender, EventArgs e)
         {
             if (gridCustomers.SelectedRows.Count == 0)
             {
@@ -219,6 +130,11 @@ namespace SalvadoreXDesktop.Forms
                 RefreshGrid();
                 MessageBox.Show("Cliente eliminado", "Exito", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
+        }
+        
+        private void GridCustomers_DoubleClick(object sender, EventArgs e)
+        {
+            BtnEdit_Click(sender, e);
         }
     }
     

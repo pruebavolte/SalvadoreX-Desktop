@@ -3,192 +3,17 @@ using SalvadoreXDesktop.Services;
 
 namespace SalvadoreXDesktop.Forms
 {
-    public class SettingsControl : UserControl
+    public partial class SettingsControl : UserControl
     {
-        private TextBox txtBusinessName = null!;
-        private TextBox txtBusinessAddress = null!;
-        private TextBox txtBusinessPhone = null!;
-        private TextBox txtBusinessRfc = null!;
-        private NumericUpDown numTaxRate = null!;
-        private TextBox txtSupabaseUrl = null!;
-        private TextBox txtSupabaseKey = null!;
-        private Label lblSyncStatus = null!;
-        private Button btnSave = null!;
-        private Button btnSyncNow = null!;
-        private Button btnTestConnection = null!;
-        
         public SettingsControl()
         {
             InitializeComponent();
+        }
+        
+        private void SettingsControl_Load(object sender, EventArgs e)
+        {
             LoadSettings();
-        }
-        
-        private void InitializeComponent()
-        {
-            this.BackColor = Color.White;
-            this.Padding = new Padding(20);
-            this.AutoScroll = true;
-            
-            var lblTitle = new Label
-            {
-                Text = "Configuracion",
-                Font = new Font("Segoe UI", 18F, FontStyle.Bold),
-                ForeColor = Color.FromArgb(30, 41, 59),
-                Location = new Point(20, 10),
-                AutoSize = true
-            };
-            
-            // Seccion: Datos del Negocio
-            var lblBusinessSection = new Label
-            {
-                Text = "Datos del Negocio",
-                Font = new Font("Segoe UI", 14F, FontStyle.Bold),
-                ForeColor = Color.FromArgb(59, 130, 246),
-                Location = new Point(20, 60),
-                AutoSize = true
-            };
-            
-            var y = 100;
-            var labelX = 20;
-            var inputX = 200;
-            var inputWidth = 350;
-            var rowHeight = 45;
-            
-            AddLabel("Nombre del Negocio:", labelX, y);
-            txtBusinessName = AddTextBox(inputX, y - 5, inputWidth);
-            y += rowHeight;
-            
-            AddLabel("Direccion:", labelX, y);
-            txtBusinessAddress = AddTextBox(inputX, y - 5, inputWidth);
-            y += rowHeight;
-            
-            AddLabel("Telefono:", labelX, y);
-            txtBusinessPhone = AddTextBox(inputX, y - 5, inputWidth);
-            y += rowHeight;
-            
-            AddLabel("RFC:", labelX, y);
-            txtBusinessRfc = AddTextBox(inputX, y - 5, inputWidth);
-            y += rowHeight;
-            
-            AddLabel("Tasa de IVA (%):", labelX, y);
-            numTaxRate = new NumericUpDown
-            {
-                Location = new Point(inputX, y - 5),
-                Size = new Size(100, 30),
-                Value = 16,
-                DecimalPlaces = 2,
-                Maximum = 100
-            };
-            this.Controls.Add(numTaxRate);
-            y += rowHeight + 20;
-            
-            // Seccion: Sincronizacion
-            var lblSyncSection = new Label
-            {
-                Text = "Sincronizacion en la Nube",
-                Font = new Font("Segoe UI", 14F, FontStyle.Bold),
-                ForeColor = Color.FromArgb(59, 130, 246),
-                Location = new Point(20, y),
-                AutoSize = true
-            };
-            y += 40;
-            
-            lblSyncStatus = new Label
-            {
-                Text = "Estado: Verificando...",
-                Font = new Font("Segoe UI", 11F),
-                Location = new Point(labelX, y),
-                AutoSize = true
-            };
-            y += 35;
-            
-            AddLabel("URL Supabase:", labelX, y);
-            txtSupabaseUrl = AddTextBox(inputX, y - 5, inputWidth);
-            txtSupabaseUrl.ReadOnly = true;
-            y += rowHeight;
-            
-            AddLabel("API Key:", labelX, y);
-            txtSupabaseKey = AddTextBox(inputX, y - 5, inputWidth);
-            txtSupabaseKey.PasswordChar = '*';
-            txtSupabaseKey.ReadOnly = true;
-            y += rowHeight + 10;
-            
-            btnTestConnection = new Button
-            {
-                Text = "Probar Conexion",
-                Location = new Point(inputX, y),
-                Size = new Size(140, 40),
-                BackColor = Color.FromArgb(107, 114, 128),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Cursor = Cursors.Hand
-            };
-            btnTestConnection.FlatAppearance.BorderSize = 0;
-            btnTestConnection.Click += BtnTestConnection_Click;
-            
-            btnSyncNow = new Button
-            {
-                Text = "Sincronizar Ahora",
-                Location = new Point(inputX + 150, y),
-                Size = new Size(140, 40),
-                BackColor = Color.FromArgb(34, 197, 94),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Cursor = Cursors.Hand
-            };
-            btnSyncNow.FlatAppearance.BorderSize = 0;
-            btnSyncNow.Click += BtnSyncNow_Click;
-            
-            y += rowHeight + 40;
-            
-            // Botones principales
-            btnSave = new Button
-            {
-                Text = "Guardar Configuracion",
-                Location = new Point(inputX, y),
-                Size = new Size(180, 45),
-                BackColor = Color.FromArgb(59, 130, 246),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 11F, FontStyle.Bold),
-                Cursor = Cursors.Hand
-            };
-            btnSave.FlatAppearance.BorderSize = 0;
-            btnSave.Click += BtnSave_Click;
-            
-            // Agregar controles
-            this.Controls.AddRange(new Control[] 
-            { 
-                lblTitle, lblBusinessSection, lblSyncSection, lblSyncStatus,
-                btnTestConnection, btnSyncNow, btnSave
-            });
-            
             UpdateSyncStatus();
-        }
-        
-        private Label AddLabel(string text, int x, int y)
-        {
-            var label = new Label
-            {
-                Text = text,
-                Location = new Point(x, y),
-                AutoSize = true,
-                Font = new Font("Segoe UI", 10F)
-            };
-            this.Controls.Add(label);
-            return label;
-        }
-        
-        private TextBox AddTextBox(int x, int y, int width)
-        {
-            var textBox = new TextBox
-            {
-                Location = new Point(x, y),
-                Size = new Size(width, 30),
-                Font = new Font("Segoe UI", 10F)
-            };
-            this.Controls.Add(textBox);
-            return textBox;
         }
         
         private void LoadSettings()
@@ -203,7 +28,6 @@ namespace SalvadoreXDesktop.Forms
                 numTaxRate.Value = taxRate;
             }
             
-            // Cargar configuracion de Supabase
             var configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json");
             if (File.Exists(configPath))
             {
@@ -229,7 +53,7 @@ namespace SalvadoreXDesktop.Forms
             lblSyncStatus.ForeColor = sync.IsOnline ? Color.FromArgb(34, 197, 94) : Color.FromArgb(239, 68, 68);
         }
         
-        private async void BtnTestConnection_Click(object? sender, EventArgs e)
+        private async void BtnTestConnection_Click(object sender, EventArgs e)
         {
             btnTestConnection.Enabled = false;
             btnTestConnection.Text = "Probando...";
@@ -268,7 +92,7 @@ namespace SalvadoreXDesktop.Forms
             }
         }
         
-        private async void BtnSyncNow_Click(object? sender, EventArgs e)
+        private async void BtnSyncNow_Click(object sender, EventArgs e)
         {
             btnSyncNow.Enabled = false;
             btnSyncNow.Text = "Sincronizando...";
@@ -290,7 +114,7 @@ namespace SalvadoreXDesktop.Forms
             }
         }
         
-        private void BtnSave_Click(object? sender, EventArgs e)
+        private void BtnSave_Click(object sender, EventArgs e)
         {
             try
             {

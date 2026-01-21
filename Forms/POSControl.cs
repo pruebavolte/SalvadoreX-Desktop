@@ -4,25 +4,13 @@ using SalvadoreXDesktop.Services;
 
 namespace SalvadoreXDesktop.Forms
 {
-    public class POSControl : UserControl
+    public partial class POSControl : UserControl
     {
         private readonly ProductRepository _productRepo;
         private readonly CategoryRepository _categoryRepo;
         private readonly CustomerRepository _customerRepo;
         private readonly SaleRepository _saleRepo;
         private readonly PrintService _printService;
-        
-        private FlowLayoutPanel panelCategories = null!;
-        private FlowLayoutPanel panelProducts = null!;
-        private ListView listCart = null!;
-        private Label lblSubtotal = null!;
-        private Label lblTax = null!;
-        private Label lblTotal = null!;
-        private TextBox txtBarcode = null!;
-        private Button btnCash = null!;
-        private Button btnCard = null!;
-        private Button btnClearCart = null!;
-        private ComboBox cmbCustomer = null!;
         
         private List<SaleItem> _cartItems = new();
         private List<Product> _allProducts = new();
@@ -38,208 +26,18 @@ namespace SalvadoreXDesktop.Forms
             _printService = new PrintService();
             
             InitializeComponent();
-            LoadData();
         }
         
-        private void InitializeComponent()
+        private void POSControl_Load(object sender, EventArgs e)
         {
-            this.BackColor = Color.FromArgb(245, 245, 250);
-            
-            // Panel izquierdo - Productos
-            var panelLeft = new Panel
-            {
-                Dock = DockStyle.Left,
-                Width = 600,
-                Padding = new Padding(10)
-            };
-            
-            // Buscador por codigo de barras
-            var panelSearch = new Panel
-            {
-                Dock = DockStyle.Top,
-                Height = 50,
-                Padding = new Padding(5)
-            };
-            
-            txtBarcode = new TextBox
-            {
-                Dock = DockStyle.Fill,
-                Font = new Font("Segoe UI", 14F),
-                PlaceholderText = "Escanear codigo de barras o buscar producto..."
-            };
-            txtBarcode.KeyDown += TxtBarcode_KeyDown;
-            panelSearch.Controls.Add(txtBarcode);
-            
-            // Panel de categorias
-            panelCategories = new FlowLayoutPanel
-            {
-                Dock = DockStyle.Top,
-                Height = 60,
-                AutoScroll = true,
-                WrapContents = false,
-                FlowDirection = FlowDirection.LeftToRight,
-                Padding = new Padding(5)
-            };
-            
-            // Panel de productos
-            panelProducts = new FlowLayoutPanel
-            {
-                Dock = DockStyle.Fill,
-                AutoScroll = true,
-                WrapContents = true,
-                BackColor = Color.White,
-                Padding = new Padding(10)
-            };
-            
-            panelLeft.Controls.Add(panelProducts);
-            panelLeft.Controls.Add(panelCategories);
-            panelLeft.Controls.Add(panelSearch);
-            
-            // Panel derecho - Carrito
-            var panelRight = new Panel
-            {
-                Dock = DockStyle.Fill,
-                BackColor = Color.White,
-                Padding = new Padding(15)
-            };
-            
-            // Titulo del carrito
-            var lblCartTitle = new Label
-            {
-                Text = "Carrito de Venta",
-                Font = new Font("Segoe UI", 16F, FontStyle.Bold),
-                Dock = DockStyle.Top,
-                Height = 40,
-                ForeColor = Color.FromArgb(30, 41, 59)
-            };
-            
-            // Selector de cliente
-            var panelCustomer = new Panel
-            {
-                Dock = DockStyle.Top,
-                Height = 40
-            };
-            
-            cmbCustomer = new ComboBox
-            {
-                Dock = DockStyle.Fill,
-                Font = new Font("Segoe UI", 11F),
-                DropDownStyle = ComboBoxStyle.DropDownList
-            };
-            cmbCustomer.SelectedIndexChanged += CmbCustomer_SelectedIndexChanged;
-            panelCustomer.Controls.Add(cmbCustomer);
-            
-            // Lista del carrito
-            listCart = new ListView
-            {
-                Dock = DockStyle.Fill,
-                View = View.Details,
-                FullRowSelect = true,
-                GridLines = true,
-                Font = new Font("Segoe UI", 10F)
-            };
-            listCart.Columns.Add("Producto", 200);
-            listCart.Columns.Add("Cant", 50, HorizontalAlignment.Center);
-            listCart.Columns.Add("Precio", 80, HorizontalAlignment.Right);
-            listCart.Columns.Add("Total", 80, HorizontalAlignment.Right);
-            listCart.KeyDown += ListCart_KeyDown;
-            listCart.DoubleClick += ListCart_DoubleClick;
-            
-            // Panel de totales
-            var panelTotals = new Panel
-            {
-                Dock = DockStyle.Bottom,
-                Height = 180,
-                BackColor = Color.FromArgb(248, 250, 252)
-            };
-            
-            lblSubtotal = new Label
-            {
-                Text = "Subtotal: $0.00",
-                Font = new Font("Segoe UI", 12F),
-                Location = new Point(10, 10),
-                Size = new Size(300, 25)
-            };
-            
-            lblTax = new Label
-            {
-                Text = "IVA (16%): $0.00",
-                Font = new Font("Segoe UI", 12F),
-                Location = new Point(10, 35),
-                Size = new Size(300, 25)
-            };
-            
-            lblTotal = new Label
-            {
-                Text = "TOTAL: $0.00",
-                Font = new Font("Segoe UI", 20F, FontStyle.Bold),
-                ForeColor = Color.FromArgb(59, 130, 246),
-                Location = new Point(10, 65),
-                Size = new Size(300, 40)
-            };
-            
-            btnCash = new Button
-            {
-                Text = "Efectivo (F1)",
-                Location = new Point(10, 115),
-                Size = new Size(140, 50),
-                BackColor = Color.FromArgb(34, 197, 94),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 12F, FontStyle.Bold),
-                Cursor = Cursors.Hand
-            };
-            btnCash.FlatAppearance.BorderSize = 0;
-            btnCash.Click += (s, e) => ProcessSale("cash");
-            
-            btnCard = new Button
-            {
-                Text = "Tarjeta (F2)",
-                Location = new Point(160, 115),
-                Size = new Size(140, 50),
-                BackColor = Color.FromArgb(59, 130, 246),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 12F, FontStyle.Bold),
-                Cursor = Cursors.Hand
-            };
-            btnCard.FlatAppearance.BorderSize = 0;
-            btnCard.Click += (s, e) => ProcessSale("card");
-            
-            btnClearCart = new Button
-            {
-                Text = "Limpiar",
-                Location = new Point(310, 115),
-                Size = new Size(80, 50),
-                BackColor = Color.FromArgb(239, 68, 68),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 10F),
-                Cursor = Cursors.Hand
-            };
-            btnClearCart.FlatAppearance.BorderSize = 0;
-            btnClearCart.Click += (s, e) => ClearCart();
-            
-            panelTotals.Controls.AddRange(new Control[] { lblSubtotal, lblTax, lblTotal, btnCash, btnCard, btnClearCart });
-            
-            panelRight.Controls.Add(listCart);
-            panelRight.Controls.Add(panelTotals);
-            panelRight.Controls.Add(panelCustomer);
-            panelRight.Controls.Add(lblCartTitle);
-            
-            this.Controls.Add(panelRight);
-            this.Controls.Add(panelLeft);
-            
-            // Atajos de teclado
-            this.KeyPreview = true;
+            LoadData();
         }
         
         private void LoadData()
         {
-            // Cargar categorias
             _categories = _categoryRepo.GetAll();
             
-            // Boton "Todos"
+            panelCategories.Controls.Clear();
             var btnAll = CreateCategoryButton("Todos", null, Color.FromArgb(107, 114, 128));
             btnAll.Click += (s, e) => FilterProducts(null);
             panelCategories.Controls.Add(btnAll);
@@ -252,12 +50,11 @@ namespace SalvadoreXDesktop.Forms
                 panelCategories.Controls.Add(btn);
             }
             
-            // Cargar productos
             _allProducts = _productRepo.GetAll();
             DisplayProducts(_allProducts);
             
-            // Cargar clientes
             var customers = _customerRepo.GetAll();
+            cmbCustomer.Items.Clear();
             cmbCustomer.Items.Add("-- Publico General --");
             foreach (var customer in customers)
             {
@@ -317,7 +114,7 @@ namespace SalvadoreXDesktop.Forms
             }
         }
         
-        private void TxtBarcode_KeyDown(object? sender, KeyEventArgs e)
+        private void TxtBarcode_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
             {
@@ -331,7 +128,6 @@ namespace SalvadoreXDesktop.Forms
                     }
                     else
                     {
-                        // Buscar por nombre
                         var products = _productRepo.Search(barcode);
                         if (products.Count == 1)
                         {
@@ -407,7 +203,7 @@ namespace SalvadoreXDesktop.Forms
             lblTotal.Text = $"TOTAL: ${total:N2}";
         }
         
-        private void ListCart_KeyDown(object? sender, KeyEventArgs e)
+        private void ListCart_KeyDown(object sender, KeyEventArgs e)
         {
             if (listCart.SelectedItems.Count > 0)
             {
@@ -437,7 +233,7 @@ namespace SalvadoreXDesktop.Forms
             }
         }
         
-        private void ListCart_DoubleClick(object? sender, EventArgs e)
+        private void ListCart_DoubleClick(object sender, EventArgs e)
         {
             if (listCart.SelectedItems.Count > 0)
             {
@@ -459,9 +255,14 @@ namespace SalvadoreXDesktop.Forms
             }
         }
         
-        private void CmbCustomer_SelectedIndexChanged(object? sender, EventArgs e)
+        private void CmbCustomer_SelectedIndexChanged(object sender, EventArgs e)
         {
             _selectedCustomer = cmbCustomer.SelectedItem as Customer;
+        }
+        
+        private void BtnClearCart_Click(object sender, EventArgs e)
+        {
+            ClearCart();
         }
         
         private void ClearCart()
@@ -476,6 +277,16 @@ namespace SalvadoreXDesktop.Forms
                     RefreshCart();
                 }
             }
+        }
+        
+        private void BtnCash_Click(object sender, EventArgs e)
+        {
+            ProcessSale("cash");
+        }
+        
+        private void BtnCard_Click(object sender, EventArgs e)
+        {
+            ProcessSale("card");
         }
         
         private void ProcessSale(string paymentMethod)
@@ -505,7 +316,6 @@ namespace SalvadoreXDesktop.Forms
             {
                 _saleRepo.Insert(sale, _cartItems.ToList());
                 
-                // Preguntar si desea imprimir
                 var printResult = MessageBox.Show(
                     $"Venta completada!\n\nTotal: ${total:N2}\nRecibo: {sale.ReceiptNumber}\n\nDesea imprimir el ticket?",
                     "Venta Exitosa",
@@ -518,12 +328,10 @@ namespace SalvadoreXDesktop.Forms
                     _printService.PrintReceipt(sale, _cartItems.ToList());
                 }
                 
-                // Limpiar carrito
                 _cartItems.Clear();
                 RefreshCart();
                 cmbCustomer.SelectedIndex = 0;
                 
-                // Recargar productos (para actualizar stock)
                 _allProducts = _productRepo.GetAll();
             }
             catch (Exception ex)
